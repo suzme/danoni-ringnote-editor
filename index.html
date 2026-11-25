@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0f16" />
+    <meta name="description" content="Dancing☆Onigiri のリングノート専用エディタ" />
+    <title>リングノートエディタ</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="presentation">
+            <defs>
+              <radialGradient xlink:href="#a" id="b" cx="32" cy="32" r="19" fx="32" fy="32" gradientUnits="userSpaceOnUse"/>
+              <linearGradient id="a">
+                <stop offset=".639" style="stop-color:#fff;stop-opacity:0"/>
+                <stop offset="1" style="stop-color:#fff;stop-opacity:1"/>
+              </linearGradient>
+            </defs>
+            <rect width="64" height="64" fill="#1e56c8" rx="14"/>
+            <circle cx="32" cy="32" r="18" fill="none" stroke="#fff" stroke-width="4" style="stroke-width:4;stroke-dasharray:none;fill:url(#b)"/>
+            <circle cx="31.75" cy="31.75" r="24.75" fill="none" stroke="#fff" stroke-width="5.5" style="stroke-width:4;stroke-dasharray:4,4;stroke-dashoffset:0;stroke:#01ffff;stroke-opacity:1"/>
+          </svg>
+        </div>
+        <div>
+          <h1>リングノートエディタ</h1>
+          <p>Dancing☆Onigiri / Ring Note Editor</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="btn-new">新規作成</button>
+        <button class="btn" id="btn-import-chart">dos読込</button>
+        <button class="btn" id="btn-import-project">セーブデータ読込</button>
+        <button class="btn" id="btn-export">保存/出力</button>
+        <button class="btn" id="btn-help">ヘルプ</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="panel left-panel">
+        <section class="panel-section ring-settings-section">
+          <div class="section-head">
+            <h2>リング設定</h2>
+            <div class="head-right">
+              <button class="text-btn" id="btn-ring-reset" type="button" title="配置設定を初期値に戻す">初期値</button>
+            </div>
+          </div>
+          <div class="segmented mode-segmented" role="tablist" aria-label="配置モード">
+            <button type="button" class="seg-btn active" data-place-mode="ring">単体リング</button>
+            <button type="button" class="seg-btn" data-place-mode="ln">列配置 (LN)</button>
+          </div>
+          <div id="ring-inspector">
+            <div class="field-grid two">
+              <label>
+                <span>半径</span>
+                <input id="ring-radius" class="num" type="number" min="5" step="0.5" />
+              </label>
+              <label>
+                <span id="ring-sound-label">音番号</span>
+                <span class="color-line">
+                  <input id="ring-sound" class="num" type="number" min="0" step="1" />
+                  <button class="text-btn" id="btn-ring-sound-preview" type="button">試聴</button>
+                </span>
+              </label>
+              <label>
+                <span>色</span>
+                <span class="color-line">
+                  <input type="checkbox" id="ring-color-auto" title="色を自動" />
+                  <span class="muted">自動</span>
+                  <input type="color" id="ring-color" />
+                </span>
+              </label>
+              <label>
+                <span>出現〜到達</span>
+                <span class="color-line">
+                  <input type="checkbox" id="ring-frames-auto" title="出現〜到達を自動" />
+                  <span class="muted">自動</span>
+                  <input id="ring-frames" class="num short" type="number" min="1" step="1" />
+                </span>
+              </label>
+            </div>
+
+            <div class="ring-info-group" id="ln-params-group" hidden>
+              <div class="field-grid two">
+                <label>
+                  <span>リング数</span>
+                  <input id="ln-count" class="num" type="number" min="2" max="256" step="1" />
+                </label>
+                <label>
+                  <span>時間 (小節比)</span>
+                  <input id="ln-duration" class="num" type="number" min="0.01" max="64" step="0.125" />
+                </label>
+                <label>
+                  <span>ゆがみ</span>
+                  <input id="ln-distortion" class="num" type="number" min="-20" max="20" step="0.1" />
+                </label>
+                <label>
+                  <span>2個目以降の音</span>
+                  <span class="color-line">
+                    <input id="ln-end-sound" class="num" type="number" min="0" step="1" />
+                    <button class="text-btn" id="btn-ln-end-sound-preview" type="button">試聴</button>
+                  </span>
+                </label>
+              </div>
+              <label class="checkline spaced">
+                <input type="checkbox" id="ln-include-end" />
+                <span>終点位置にも配置</span>
+              </label>
+              <p class="hint" id="ln-place-hint">キャンバスで始点 → 終点の順にクリックして配置します。</p>
+            </div>
+
+            <div class="ring-info-group" id="single-ring-info-group">
+              <div class="field-grid">
+                <label>
+                  <span>到達フレーム</span>
+                  <input id="ring-frame" class="num" type="number" step="0.001" disabled />
+                </label>
+                <div class="field-grid two compact">
+                  <label>
+                    <span>Page</span>
+                    <input id="ring-page" class="num" type="number" min="1" step="1" disabled />
+                  </label>
+                  <label>
+                    <span>Position</span>
+                    <input id="ring-position" class="num" type="number" step="0.001" disabled />
+                  </label>
+                  <label>
+                    <span>X</span>
+                    <input id="ring-x" class="num" type="number" step="0.1" disabled />
+                  </label>
+                  <label>
+                    <span>Y</span>
+                    <input id="ring-y" class="num" type="number" step="0.1" disabled />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="ring-info-group" id="ln-info-group" hidden>
+              <div class="sub-group-title">始点 (S)</div>
+              <div class="field-grid two compact">
+                <label>
+                  <span>Page</span>
+                  <input id="ln-start-page" class="num" type="number" min="1" step="1" disabled />
+                </label>
+                <label>
+                  <span>Position</span>
+                  <input id="ln-start-position" class="num" type="number" step="0.001" disabled />
+                </label>
+                <label>
+                  <span>始点 X</span>
+                  <input id="ln-start-x" class="num" type="number" step="0.1" disabled />
+                </label>
+                <label>
+                  <span>始点 Y</span>
+                  <input id="ln-start-y" class="num" type="number" step="0.1" disabled />
+                </label>
+              </div>
+              <div class="sub-group-title spaced">終点 (E)</div>
+              <div class="field-grid two compact">
+                <label>
+                  <span>Page</span>
+                  <input id="ln-end-page" class="num" type="number" min="1" step="1" disabled />
+                </label>
+                <label>
+                  <span>Position</span>
+                  <input id="ln-end-position" class="num" type="number" step="0.001" disabled />
+                </label>
+                <label>
+                  <span>終点 X</span>
+                  <input id="ln-end-x" class="num" type="number" step="0.1" disabled />
+                </label>
+                <label>
+                  <span>終点 Y</span>
+                  <input id="ln-end-y" class="num" type="number" step="0.1" disabled />
+                </label>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="btn btn-small" id="btn-ring-duplicate" disabled>複製</button>
+              <button class="btn btn-small" id="btn-ring-delete" disabled>削除</button>
+              <button class="btn btn-small" id="btn-ring-jump" disabled>時間へ</button>
+              <button class="btn btn-small" id="btn-ln-decompose" hidden disabled title="LNを個別の単体リングへ分解">単体へ分解</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>リング速度変化</h2>
+            <span class="badge" id="speed-count">0</span>
+          </div>
+          <div class="speed-add">
+            <select id="speed-type" class="select">
+              <option value="speed">全体</option>
+              <option value="boost">個別</option>
+            </select>
+            <input id="speed-value" class="num" type="number" step="0.1" value="1" aria-label="速度倍率" />
+            <button class="btn btn-small" id="btn-add-speed">追加</button>
+          </div>
+          <div id="speed-list" class="list compact-list"></div>
+          <p class="hint">全体速度は再生中のリング速度、個別加速は到達時の出現時間に影響します。</p>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>検証</h2>
+            <span class="badge" id="warning-count">0</span>
+          </div>
+          <div id="warning-list" class="warnings"></div>
+        </section>
+      </aside>
+
+      <section class="center-panel">
+        <div class="canvas-toolbar">
+          <div class="edit-status" id="edit-status">Page 1 / 0.0 / frame 200 / 0:03.333</div>
+          <div class="note-count" id="note-count" title="全ページのノート数">通常 0 / リング 0 / 合計 0</div>
+        </div>
+
+        <div class="center-main">
+          <div class="canvas-column">
+            <div class="canvas-scroll" id="canvas-scroll">
+              <canvas id="edit-canvas" width="600" height="500" tabindex="0" aria-label="リング配置キャンバス"></canvas>
+            </div>
+
+            <div class="canvas-legend">
+              <span><i class="legend-dot ring"></i>リング</span>
+              <span><i class="legend-dot cursor"></i>カーソル位置</span>
+              <span><i class="legend-dot selected"></i>選択中</span>
+              <span class="muted">空きクリックで追加（選択中は解除） / 右クリックで削除</span>
+            </div>
+
+            <div class="playbar">
+              <div class="playbar-row">
+                <button class="btn btn-primary" id="btn-main-play">▶ ループ再生</button>
+                <label class="btn audio-file-btn" for="music-file">ファイルを選択</label>
+                <input type="file" id="music-file" accept="audio/*" class="file-input" aria-label="音源ファイル" hidden />
+                <span class="badge" id="music-badge">未読込</span>
+                <span class="play-status" id="play-status">停止中</span>
+              </div>
+              <div class="audio-inline">
+                <div class="audio-controls">
+                  <label>
+                    <span>音量 <b id="music-volume-value">80%</b></span>
+                    <input id="music-volume" class="range" type="range" min="0" max="100" step="1" />
+                  </label>
+                  <label>
+                    <span>速度 <b id="music-rate-value">1.00x</b></span>
+                    <input id="music-rate" class="range" type="range" min="50" max="200" step="5" />
+                  </label>
+                  <label>
+                    <span>オフセット <b id="music-offset-value">0 f</b></span>
+                    <input id="music-offset" class="range" type="range" min="-100" max="100" step="1" title="＋で譜面が遅れる（曲が先行）" />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="timeline-panel">
+            <div class="timeline-toolbar">
+              <div class="timeline-title">タイムライン</div>
+              <button class="btn btn-small" id="btn-timeline-reverse">↓ 上から下</button>
+              <label class="inline-field">
+                <span>高さ</span>
+                <select id="block-height" class="select">
+                  <option value="40">コンパクト</option>
+                  <option value="56">標準</option>
+                  <option value="72">広め</option>
+                  <option value="96">最大</option>
+                </select>
+              </label>
+            </div>
+            <div class="timeline-scroll" id="timeline-scroll">
+              <div class="timeline-content" id="timeline-content"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <aside class="panel right-panel">
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>ページ</h2>
+          </div>
+          <div class="page-nav">
+            <button class="icon-btn" data-page-step="-5" title="5ページ前">≪</button>
+            <button class="icon-btn" data-page-step="-1" title="前のページ">◁</button>
+            <input id="page-input" class="num page-num" type="number" min="1" step="1" value="1" aria-label="Page" />
+            <button class="icon-btn" data-page-step="1" title="次のページ">▷</button>
+            <button class="icon-btn" data-page-step="5" title="5ページ後">≫</button>
+          </div>
+
+          <div class="label-row">
+            <label class="checkline">
+              <input type="checkbox" id="label-checkbox" />
+              <span>Label</span>
+            </label>
+            <div class="mini-nav">
+              <button class="icon-btn small" id="btn-label-prev" title="前のLabel">◁</button>
+              <span id="label-position">1 / 1</span>
+              <button class="icon-btn small" id="btn-label-next" title="次のLabel">▷</button>
+            </div>
+          </div>
+
+          <div class="field-grid two">
+            <label>
+              <span>Start Number</span>
+              <input id="start-number" class="num" type="number" step="0.01" />
+            </label>
+            <label>
+              <span>Blank Frame</span>
+              <input id="blank-frame" class="num" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              <span>BPM</span>
+              <input id="bpm" class="num" type="number" min="1" step="0.01" />
+            </label>
+            <label>
+              <span>Page Block</span>
+              <input id="page-block" class="num" type="number" min="1" max="8" step="any" />
+            </label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>表示</h2>
+          </div>
+          <div class="field-grid">
+            <label>
+              <span>リング表示範囲（カーソルから）</span>
+              <input id="display-range" class="range" type="range" min="0.5" max="16" step="0.5" />
+              <span id="display-range-value" class="muted">4拍</span>
+            </label>
+          </div>
+          <div class="field-grid two">
+            <label>
+              <span>吸着</span>
+              <select id="snap" class="select">
+                <option value="1">1px</option>
+                <option value="5">5px</option>
+                <option value="10">10px</option>
+              </select>
+            </label>
+            <label>
+              <span>グリッド</span>
+              <select id="divisor" class="select"></select>
+            </label>
+          </div>
+          <label class="checkline spaced">
+            <input type="checkbox" id="advance-after-place" />
+            <span>配置後に編集カーソルを進める</span>
+          </label>
+          <div class="check-grid">
+            <label class="checkline"><input type="checkbox" id="show-times" /><span>時間ラベル</span></label>
+            <label class="checkline"><input type="checkbox" id="show-reference" /><span>通常ノーツ参照</span></label>
+            <label class="checkline"><input type="checkbox" id="show-waveform" /><span>タイムライン波形</span></label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>譜面設定</h2>
+          </div>
+          <div class="field-grid two">
+            <label>
+              <span>画面 W</span>
+              <input id="screen-w" class="num" type="number" min="100" max="4000" step="1" />
+            </label>
+            <label>
+              <span>画面 H</span>
+              <input id="screen-h" class="num" type="number" min="100" max="4000" step="1" />
+            </label>
+            <label>
+              <span>Score No.</span>
+              <input id="score-number" class="num" type="number" min="1" step="1" />
+            </label>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <!-- 譜面の読み込み -->
+    <dialog id="dialog-import-chart" class="dialog">
+      <form method="dialog" class="dialog-inner">
+        <header class="dialog-head">
+          <h2>既存譜面を読み込む</h2>
+          <button class="icon-btn" value="cancel" aria-label="閉じる">×</button>
+        </header>
+        <div class="dialog-body">
+          <p class="hint">
+            danoni-editor の「GO!」で出力したテキスト、または既存のDOS譜面を貼り付けてください。
+            タイミング定義（es_label / es_bpm など）と ring_data を読み取ります。
+          </p>
+          <input type="file" id="chart-file" accept=".txt,.dos,text/plain" class="file-input" />
+          <textarea id="chart-text" class="code" rows="12" placeholder="|es_label=1|es_bpm=140|..."></textarea>
+          <div class="import-options">
+            <label class="checkline"><input type="checkbox" id="import-rings" checked /><span>リング・速度変化も取り込む</span></label>
+            <label class="checkline"><input type="checkbox" id="import-references" checked /><span>通常ノーツを参照表示する</span></label>
+            <label class="checkline"><input type="checkbox" id="import-screen" checked /><span>譜面の画面サイズ設定を取り込む</span></label>
+          </div>
+          <div id="import-summary" class="summary-box muted">まだ解析していません。</div>
+        </div>
+        <footer class="dialog-foot">
+          <button class="btn" id="btn-import-analyze" type="button">解析</button>
+          <span class="spacer"></span>
+          <button class="btn" value="cancel">キャンセル</button>
+          <button class="btn btn-primary" id="btn-import-apply" type="button" disabled>適用</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <!-- 書き出し -->
+    <dialog id="dialog-export" class="dialog">
+      <form method="dialog" class="dialog-inner">
+        <header class="dialog-head">
+          <h2>出力</h2>
+          <button class="icon-btn" value="cancel" aria-label="閉じる">×</button>
+        </header>
+        <div class="dialog-body">
+          <div class="segmented" role="tablist">
+            <button type="button" class="seg-btn active" data-export-mode="merged">完成譜面</button>
+            <button type="button" class="seg-btn" data-export-mode="snippet">ring_dataのみ</button>
+            <button type="button" class="seg-btn" data-export-mode="project">セーブデータ</button>
+          </div>
+          <div class="export-options">
+            <label class="checkline"><input type="checkbox" id="export-screen" /><span>画面サイズヘッダを出力（ringWidth）</span></label>
+            <label class="checkline"><input type="checkbox" id="export-empty" /><span>空の速度セクションも出力</span></label>
+          </div>
+          <textarea id="export-text" class="code" rows="16" readonly></textarea>
+          <div id="export-note" class="hint"></div>
+        </div>
+        <footer class="dialog-foot">
+          <span class="spacer"></span>
+          <button class="btn" value="cancel">閉じる</button>
+          <button class="btn" id="btn-export-copy" type="button">コピー</button>
+          <button class="btn btn-primary" id="btn-export-download" type="button">ダウンロード</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <!-- ヘルプ -->
+    <dialog id="dialog-help" class="dialog dialog-help">
+      <form method="dialog" class="dialog-inner">
+        <header class="dialog-head">
+          <h2>使い方</h2>
+          <button class="icon-btn" value="cancel" aria-label="閉じる">×</button>
+        </header>
+        <div class="dialog-body help-body">
+          <h3>リングを置く</h3>
+          <ul>
+            <li>クリックで編集カーソルの位置にリングを置く</li>
+            <li>左側の「リング設定」で、音番号・半径・色・出現〜到達時間を設定<br>
+                リングを選んでいると選択中のリングに、何も選んでいないと次に置くリングに設定が反映されます</li>
+            <li>何もない場所をクリックすると選択を解除</li>
+            <li>リングをドラッグで移動。右側のハンドルでサイズを変え、右クリックで削除できます</li>
+          </ul>
+          <h3>列配置(LN)</h3>
+          <ul>
+            <li>直線または曲線に沿って等間隔に配置する機能です</li>
+            <li>「列配置 (LN)」モードで始点、終点の順にクリックします</li>
+            <li>配置後は `S`（始点）、`E`（終点）、`◆`（ゆがみ）ハンドルで形を調整できます</li>
+            <li>タイムラインでは始点・終点の時間を変更できます</li>
+          </ul>
+          <h3>時間とページを調整する</h3>
+          <ul>
+            <li>タイムラインをクリックまたはドラッグすると編集カーソルが移動します</li>
+            <li>タイムライン上のマーカーを上下にドラッグすると、リングの時間を変更できます</li>
+            <li>カーソルが表示範囲の外に出ると、タイムラインはカーソルが見えるよう自動でスクロールします</li>
+          </ul>
+          <h3>Page / Label について</h3>
+          <p>
+            1ページの長さは「Page Block」で指定します（既定は4分音符8個分）。<br>
+            Labelを追加すると、そのページからBPM・Start Number・Page Blockが切り替わります。<br>
+            「Blank Frame」は譜面全体の開始位置をずらす設定です。
+          </p>
+          <h3>ショートカット</h3>
+          <table class="shortcut-table">
+            <tr><td>← / →</td><td>ページ移動（Shiftで5ページ）</td></tr>
+            <tr><td>↑ / ↓</td><td>編集カーソルを分割単位で移動</td></tr>
+            <tr><td>Ctrl+↑ / Ctrl+↓</td><td>編集カーソル位置のノートをカーソルと一緒に分割単位で移動</td></tr>
+            <tr><td>Space / B</td><td>編集カーソルを前 / 後ろへ</td></tr>
+            <tr><td>Enter</td><td>ループ再生 / 停止</td></tr>
+            <tr><td>1〜7 / Ctrl+1〜7</td><td>グリッドの切り替え</td></tr>
+            <tr><td>Ctrl+Z</td><td>元に戻す</td></tr>
+            <tr><td>Ctrl+Shift+Z / Ctrl+Y</td><td>やり直す</td></tr>
+            <tr><td>Ctrl+X</td><td>ページカット（編集カーソルのページ内容を切り取り）</td></tr>
+            <tr><td>Ctrl+C</td><td>ページコピー</td></tr>
+            <tr><td>Ctrl+V</td><td>ページ貼り付け（現在ページへ上書き）</td></tr>
+            <tr><td>Ctrl+Shift+X</td><td>ページ削除（現在ページを削除し、後続ページを1ページ分詰める）</td></tr>
+            <tr><td>Ctrl+Shift+V</td><td>ページ挿入（後続ページを1ページ分送る）</td></tr>
+            <tr><td>Delete / Backspace</td><td>選択リングを削除（未選択時は編集カーソル位置のリングを削除）</td></tr>
+            <tr><td>Esc</td><td>選択解除 / ダイアログを閉じる</td></tr>
+          </table>
+          <h3>入出力</h3>
+          <p>
+            「譜面読込」で通常ノーツの譜面データ(dos)を読み込むことができます。<br>
+            SKB氏のdanoni-editorの出力フッターを使用して、自動的にBPMなどの情報を取り込みます。<br>
+            通常ノーツが配置されているタイミングがタイムライン上に表示されます。<br>
+            「出力」から、リングデータ（`ring_data`）を含む完成譜面、または譜面に貼り付けるためのデータを保存できます。
+          </p>
+          <p>
+            譜面ファイル（`.txt` / `.dos`）、セーブデータ（`.json`）、音源は、ウィンドウにドラッグ＆ドロップして読み込めます。<br>
+            音源とデータファイルを一緒にドロップすることもできます。
+          </p>
+        </div>
+        <footer class="dialog-foot">
+          <button class="btn btn-primary" value="cancel">閉じる</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <div class="drop-overlay" id="drop-overlay" hidden>
+      <div class="drop-card">
+        <div class="drop-icon" aria-hidden="true">⇩</div>
+        <h2>ファイルをドロップ</h2>
+        <p class="drop-types">
+          譜面ファイル（<b>.txt / .dos</b>）<br />
+          セーブデータ（<b>.json</b>）<br />
+          音源（<b>.mp3 / .wav / .ogg</b> など）
+        </p>
+        <p class="muted">音源とデータファイルは同時に受け付けます</p>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toast-stack"></div>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>

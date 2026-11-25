@@ -1,0 +1,133 @@
+{
+  "format": "danoni-ring-note-editor",
+  "version": 1,
+  "project": {
+    "version": 1,
+    "title": "Ring Sample",
+    "artist": "",
+    "author": "",
+    "screen": {
+      "width": 600,
+      "height": 500
+    },
+    "blankFrame": 200,
+    "timings": [
+      {
+        "label": 1,
+        "startNum": 0,
+        "bpm": 140,
+        "pageBlockNum": 8
+      }
+    ],
+    "rings": [
+      {
+        "id": "r1",
+        "page": 1,
+        "position": 186.666667,
+        "x": 150,
+        "y": 200,
+        "sound": 1,
+        "radius": 50,
+        "color": "",
+        "frames": 0
+      },
+      {
+        "id": "r2",
+        "page": 1,
+        "position": 280,
+        "x": 300,
+        "y": 250,
+        "sound": 2,
+        "radius": 40,
+        "color": "#ffcc00",
+        "frames": 0
+      },
+      {
+        "id": "r3",
+        "page": 1,
+        "position": 373.333333,
+        "x": 450,
+        "y": 350,
+        "sound": 3,
+        "radius": 50,
+        "color": "",
+        "frames": 0
+      },
+      {
+        "id": "r4",
+        "page": 2,
+        "position": 176,
+        "x": 250,
+        "y": 350,
+        "sound": 4,
+        "radius": 60,
+        "color": "#66ccff",
+        "frames": 0
+      },
+      {
+        "id": "r5",
+        "page": 3,
+        "position": 72,
+        "x": 350,
+        "y": 200,
+        "sound": 5,
+        "radius": 50,
+        "color": "#99ff99",
+        "frames": 0
+      }
+    ],
+    "speeds": [
+      {
+        "id": "s1",
+        "type": "speed",
+        "frame": 0,
+        "value": 1
+      },
+      {
+        "id": "s2",
+        "type": "speed",
+        "frame": 600,
+        "value": 1.5
+      },
+      {
+        "id": "s3",
+        "type": "boost",
+        "frame": 400,
+        "value": 1.2
+      }
+    ],
+    "scoreNumber": 1,
+    "scorePrefix": "",
+    "importedChart": "|musicTitle=Ring Sample,Tester|\n|difData=7,Ring Sample,3.5|\n|musicUrl=nosound.mp3|\n|blankFrame=200|\n|es_label=1|es_startNumber=0|es_bpm=140|es_pageBlockNumber=8|es_scoreNumber=1|es_scorePrefix=|\n|ring_data=\n300,150,200\n350,300,250,2,40,#ffcc00\n400,450,350,3\n500,250,350,4,60,#66ccff\n650,350,200,5,,#99ff99\n|\n|ring_speed_data=\n0,1\n600,1.5\n|\n|ring_boost_data=\n400,1.2\n|\n|left_data=\n250,300|\n|down_data=\n350,450|\n|endFrame=1200|\n",
+    "importedChartName": "sample-chart.txt",
+    "referenceNoteFrames": [
+      250,
+      300,
+      350,
+      450
+    ],
+    "nextId": 17
+  },
+  "settings": {
+    "timelineReverse": false,
+    "blockHeight": 56,
+    "displayRange": "page",
+    "showGuides": true,
+    "showTimes": false,
+    "showReferenceNotes": true,
+    "background": "dark",
+    "zoom": 100,
+    "snap": 5,
+    "advanceAfterPlace": true,
+    "divisor": 24,
+    "musicVolume": 0.8,
+    "musicRate": 1,
+    "musicOffset": 0,
+    "tool": {
+      "sound": 1,
+      "radius": 50,
+      "color": "",
+      "frames": 0
+    }
+  }
+}
